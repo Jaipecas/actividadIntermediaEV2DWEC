@@ -1,0 +1,23 @@
+{
+  "name": "rick-and-morty",
+  "version": "1.0.0",
+  "main": "index.js",
+  "type": "module",
+  "license": "MIT",
+  "scripts": {
+    "test": "jest",
+    "eslint": "eslint ./src ./tests"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.16.10",
+    "@babel/node": "^7.16.8",
+    "@babel/preset-env": "^7.16.11",
+    "babel-jest": "^27.4.6",
+    "jest": "^27.4.7"
+  },
+  "dependencies": {
+    "core-js": "^3.20.3",
+    "eslint": "^8.7.0",
+    "node-fetch": "2"
+  }
+}
