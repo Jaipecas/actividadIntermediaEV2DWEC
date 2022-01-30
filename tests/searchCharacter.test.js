@@ -47,19 +47,26 @@ describe('searchCharacter', () => {
     });
   });
 
- /*  describe('when there is an HTTP error', () => {
-    it('returns a rejected promise with the error');
-  }); */
+  describe('when there is an HTTP error', () => {
+    it('returns a rejected promise with the error', async () => {
+      const response = {
+        status: 500
+      }
+
+      fetch.mockResolvedValueOnce(response);
+
+      try {
+        await searchCharacter('Jaime');
+      } catch (error) {
+        expect(error).toBe(`Error: 500`);
+      }
+    });
+  });
 
   describe('when no data is found', () => {
     it('returns "personaje no encontrado"', async () => {
       const response = {
-        status: 404,
-        json: () => {
-          return {
-            results: [characters['annie'], characters['attila']]
-          }
-        }
+        status: 404
       }
 
       fetch.mockResolvedValueOnce(response);
