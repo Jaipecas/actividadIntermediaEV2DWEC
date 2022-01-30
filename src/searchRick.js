@@ -1,44 +1,37 @@
-import fetch from 'node-fetch';
+import {
+    searchRickMortyAPI
+} from './apiRick.js';
 
 const apiRickMorty = 'https://rickandmortyapi.com/api/';
-
-async function searchRickMortyAPI(http, query) {
-    try {
-        const response = await fetch(http);
-        if (response.status === 404) return Promise.reject(`${query} no encontrado`);
-        if (response.status !== 200) return Promise.reject(`Error: ${response.status}`);
-        const data = await response.json();
-        return data;
-    } catch (error) {
-        return Promise.reject(error.message);
-    }
-}
 
 async function searchCharacter(nameCharacther) {
     const characters = await searchRickMortyAPI(apiRickMorty + `/character/?name=${nameCharacther} `, 'Personaje');
     return characters.results[0];
 }
 
-async function searcCharactersEpisodes(httpEpisode) {
-    const episode = await searchRickMortyAPI(httpEpisode, 'Episodio');
+async function searcCharactersEpisodes(urlEpisode) {
+    const episode = await searchRickMortyAPI(urlEpisode, 'Episodio');
     return episode.characters;
 }
 
-async function searcCharactersById(httpCharacterId) {
-    const character = await searchRickMortyAPI(httpCharacterId, 'Personaje');
+async function searcCharactersById(urlCharacterId) {
+    const character = await searchRickMortyAPI(urlCharacterId, 'Personaje');
     return {
         id: character.id,
         name: character.name
     };
 }
 
-/* function orderByCharacterNames(characters) {
+function orderByCharacterNames(episodeCompanions) {
     let charactersOrder = [];
-    characters.forEach(arrayCharacters => {
-        charactersOrder.concat(arrayCharacters);
+
+    episodeCompanions.forEach(episode => {
+        episode.forEach(character => {
+            charactersOrder.push(character)
+        })
     })
 
-    charactersOrder.sort((a, b) => {
+    charactersOrder.sort(((a, b) => {
         if (a.name > b.name) {
             return 1;
         }
@@ -46,18 +39,29 @@ async function searcCharactersById(httpCharacterId) {
             return -1;
         }
         return 0;
-    });
+    }))
 
-} */
+    return charactersOrder;
+}
 
-async function getEpisodeCharacters(httpEpisode, charactersSerched) {
+function includeCharacter(charactersSerched, urlCharacterId, urlPrincipalCharacter) {
+    if (urlCharacterId === urlPrincipalCharacter) {
+        return true
+    }
+    if (charactersSerched.includes(urlCharacterId)) {
+        return true
+    }
+    return false
+}
+
+async function getEpisodeCharacters(urlEpisode, charactersSerched, urlCharacter) {
     let promisesCharacter = [];
-    let charactersEpisode = await searcCharactersEpisodes(httpEpisode);
+    const charactersEpisode = await searcCharactersEpisodes(urlEpisode);
 
-    charactersEpisode.forEach(httpCharacterId => {
-        if (!charactersSerched.includes(httpCharacterId)) {
-            promisesCharacter.push(searcCharactersById(httpCharacterId));
-            charactersSerched.push(httpCharacterId);
+    charactersEpisode.forEach(urlCharacterId => {
+        if (!includeCharacter(charactersSerched, urlCharacterId, urlCharacter)) {
+            promisesCharacter.push(searcCharactersById(urlCharacterId));
+            charactersSerched.push(urlCharacterId);
         }
     })
     return Promise.all(promisesCharacter);
@@ -65,25 +69,20 @@ async function getEpisodeCharacters(httpEpisode, charactersSerched) {
 
 async function getCompanions(nameCharacther) {
     const character = await searchCharacter(nameCharacther);
-    let episodes = character.episode
+    const episodes = character.episode;
+    const urlCharacter = character.url;
     let episodePromises = [];
     let charactersSerched = [];
 
-    episodes.forEach(httpEpisode => {
-        episodePromises.push(getEpisodeCharacters(httpEpisode, charactersSerched));
+    episodes.forEach(urlEpisode => {
+        episodePromises.push(getEpisodeCharacters(urlEpisode, charactersSerched, urlCharacter));
     })
 
     let episodesCompanions = await Promise.all(episodePromises);
+    let organizedCompainions = orderByCharacterNames(episodesCompanions);
 
-   // orderByCharacterNames(episodesCompanions);
-
-    return episodesCompanions;
+    return organizedCompainions;
 }
-
-
-/* let result = await getCompanions('Armagheadon');
-console.log(result); */
-
 
 export {
     searchCharacter,
