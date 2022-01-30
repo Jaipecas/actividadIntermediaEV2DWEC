@@ -52,7 +52,6 @@ const characters = {
   attila
 }
 
-
 export {
   characters
 }
