@@ -47,25 +47,23 @@ function getArrayCharacters(episodeCompanions) {
     return characters;
 }
 
-function includeCharacter(charactersSerched, urlCharacterId, urlPrincipalCharacter) {
-    if (urlCharacterId === urlPrincipalCharacter) {
-        return true
-    }
-    if (charactersSerched.includes(urlCharacterId)) {
-        return true
-    }
-    return false
+function filterCharacters(characters, charactersSerched, urlPrincipalCharacter) {
+    let charactFilter = [];
+
+    charactFilter = characters.filter(urlCharacterId => urlCharacterId !== urlPrincipalCharacter && !charactersSerched.includes(urlCharacterId))
+
+    return charactFilter;
 }
 
 async function getEpisodeCharacters(urlEpisode, charactersSerched, urlCharacter) {
     let promisesCharacter = [];
-    const charactersEpisode = await searcCharactersEpisodes(urlEpisode);
+    let charactersEpisode = await searcCharactersEpisodes(urlEpisode);
+
+    charactersEpisode = filterCharacters(charactersEpisode, charactersSerched, urlCharacter)
 
     charactersEpisode.forEach(urlCharacterId => {
-        if (!includeCharacter(charactersSerched, urlCharacterId, urlCharacter)) {
-            promisesCharacter.push(searcCharactersById(urlCharacterId));
-            charactersSerched.push(urlCharacterId);
-        }
+        promisesCharacter.push(searcCharactersById(urlCharacterId));
+        charactersSerched.push(urlCharacterId);
     })
     return Promise.all(promisesCharacter);
 }
@@ -82,6 +80,7 @@ async function getCompanions(nameCharacther) {
     let companions = sortArrayObjectBy(getArrayCharacters(await Promise.all(episodePromises)), 'name');
     return companions;
 }
+
 
 export {
     searchCharacter,
