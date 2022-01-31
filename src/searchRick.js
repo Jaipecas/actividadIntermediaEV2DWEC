@@ -22,7 +22,7 @@ async function searcCharactersById(urlCharacterId) {
     };
 }
 
-function sortArrayObjectBy(array, value){
+function sortArrayObjectBy(array, value) {
     array.sort(((a, b) => {
         if (a[value] > b[value]) {
             return 1;
@@ -35,7 +35,7 @@ function sortArrayObjectBy(array, value){
     return array;
 }
 
-function sortByCharacterNames(episodeCompanions) {
+function getArrayCharacters(episodeCompanions) {
     let characters = [];
 
     episodeCompanions.forEach(episode => {
@@ -44,7 +44,7 @@ function sortByCharacterNames(episodeCompanions) {
         })
     })
 
-    return sortArrayObjectBy(characters, 'name');
+    return characters;
 }
 
 function includeCharacter(charactersSerched, urlCharacterId, urlPrincipalCharacter) {
@@ -79,7 +79,8 @@ async function getCompanions(nameCharacther) {
         episodePromises.push(getEpisodeCharacters(urlEpisode, charactersSerched, character.url));
     })
 
-    return sortByCharacterNames(await Promise.all(episodePromises));
+    let companions = sortArrayObjectBy(getArrayCharacters(await Promise.all(episodePromises)), 'name');
+    return companions;
 }
 
 export {
