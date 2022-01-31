@@ -84,9 +84,6 @@ async function getCompanions(nameCharacther) {
     return sortByCharacterNames(await Promise.all(episodePromises));
 }
 
-let result = await getCompanions('Armagheadon')
-console.log(result)
-
 export {
     searchCharacter,
     getCompanions
