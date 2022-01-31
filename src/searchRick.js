@@ -72,13 +72,11 @@ async function getEpisodeCharacters(urlEpisode, charactersSerched, urlCharacter)
 
 async function getCompanions(nameCharacther) {
     const character = await searchCharacter(nameCharacther);
-    const episodes = character.episode;
-    const urlCharacter = character.url;
     let episodePromises = [];
     let charactersSerched = [];
 
-    episodes.forEach(urlEpisode => {
-        episodePromises.push(getEpisodeCharacters(urlEpisode, charactersSerched, urlCharacter));
+    character.episode.forEach(urlEpisode => {
+        episodePromises.push(getEpisodeCharacters(urlEpisode, charactersSerched, character.url));
     })
 
     return sortByCharacterNames(await Promise.all(episodePromises));
