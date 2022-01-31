@@ -22,26 +22,29 @@ async function searcCharactersById(urlCharacterId) {
     };
 }
 
-function orderByCharacterNames(episodeCompanions) {
-    let charactersOrder = [];
-
-    episodeCompanions.forEach(episode => {
-        episode.forEach(character => {
-            charactersOrder.push(character)
-        })
-    })
-
-    charactersOrder.sort(((a, b) => {
-        if (a.name > b.name) {
+function sortArrayObjectBy(array, value){
+    array.sort(((a, b) => {
+        if (a[value] > b[value]) {
             return 1;
         }
-        if (a.name < b.name) {
+        if (a[value] < b[value]) {
             return -1;
         }
         return 0;
     }))
+    return array;
+}
 
-    return charactersOrder;
+function sortByCharacterNames(episodeCompanions) {
+    let characters = [];
+
+    episodeCompanions.forEach(episode => {
+        episode.forEach(character => {
+            characters.push(character)
+        })
+    })
+
+    return sortArrayObjectBy(characters, 'name');
 }
 
 function includeCharacter(charactersSerched, urlCharacterId, urlPrincipalCharacter) {
@@ -78,11 +81,11 @@ async function getCompanions(nameCharacther) {
         episodePromises.push(getEpisodeCharacters(urlEpisode, charactersSerched, urlCharacter));
     })
 
-    let episodesCompanions = await Promise.all(episodePromises);
-    let organizedCompainions = orderByCharacterNames(episodesCompanions);
-
-    return organizedCompainions;
+    return sortByCharacterNames(await Promise.all(episodePromises));
 }
+
+let result = await getCompanions('Armagheadon')
+console.log(result)
 
 export {
     searchCharacter,
